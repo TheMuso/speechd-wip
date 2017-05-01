@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <gio/gio.h>
 #include <semaphore.h>
 
 #include <picoapi.h>
@@ -66,7 +67,6 @@ static pico_Resource picoSgResource;
 static pico_Engine picoEngine;
 static pico_Char *picoInp;
 
-static const char *PICO_LINGWARE_PATH = "/usr/share/pico/lang/";
 static const int PICO_SAMPLE_RATE = 16000;
 static const char *picoInternalTaLingware[] = {
 	"en-US_ta.bin",
@@ -109,11 +109,11 @@ static GThread *pico_play_thread;
 static sem_t pico_play_semaphore;
 static sem_t pico_idle_semaphore;
 
+static GSettings *pico_settings = NULL;
+static char *PicoLingwarePath = NULL;
+
 enum states { STATE_IDLE, STATE_PLAY, STATE_PAUSE, STATE_STOP, STATE_CLOSE };
 static enum states pico_state;
-
-/* Module configuration options */
-MOD_OPTION_1_STR(PicoLingwarePath)
 
 static int pico_set_rate(signed int value)
 {
@@ -281,13 +281,25 @@ static gpointer pico_play_func(gpointer nothing)
 	return 0;
 }
 
+static void
+pico_update_debug(GSettings *settings,
+                  gchar *key,
+                  gpointer user_data)
+{
+	Debug = g_settings_get_boolean(pico_settings, "debug");
+}
+
 /* Public functions */
 int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
-	MOD_OPTION_1_INT_REG(Debug, 0);
-	MOD_OPTION_1_STR_REG(PicoLingwarePath, PICO_LINGWARE_PATH);
+	pico_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
+
+	PicoLingwarePath = g_settings_get_string(pico_settings, "lingware-path");
+	Debug = g_settings_get_boolean(pico_settings, "debug");
+	g_signal_connect (pico_settings, "changed::debug",
+	                  G_CALLBACK(pico_update_debug), NULL);
 
 	return 0;
 }
