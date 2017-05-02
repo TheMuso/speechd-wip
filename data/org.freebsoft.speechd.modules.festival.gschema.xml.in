@@ -124,12 +124,15 @@
 
     <!-- DEBUGING -->
 
-    <key name="debug" type="b">
+    <key name="debug" type="u">
       <_summary>Debug</_summary>
       <_description>
-        Whether debugging is enabled in the festival output module or not.
+        Debugging setting. Possible values are:
+        0 disabled
+        1 enabled
+        2 log to file.
       </_description>
-      <default>false</default>
+      <default>0</default>
     </key>
 
     <key name="debug-save-output" type="b">
