@@ -203,6 +203,14 @@ static guint      EspeakAudioQueueMaxSize = 0;
 static guint      EspeakSoundIconVolume = 0;
 static gboolean   EspeakListVoiceVariants = FALSE;
 
+static void
+espeak_update_list_voice_variants(GSettings *settings,
+                  gchar *key,
+                  gpointer user_data)
+{
+	EspeakListVoiceVariants = g_settings_get_boolean(settings, "list-voice-variants");
+}
+
 /* > */
 /* < Public functions */
 int module_load(void)
@@ -223,7 +231,9 @@ int module_load(void)
 	EspeakMaxRate = g_settings_get_uint(espeak_settings, "max-rate");
 	EspeakPunctuationList = g_settings_get_string(espeak_settings, "punctuation-list");
 	EspeakCapitalPitchRise = g_settings_get_uint(espeak_settings, "capital-pitch-rise");
-	EspeakListVoiceVariants = g_settings_get_boolean(espeak_settings, "list-voice-variants");
+	g_signal_connect (espeak_settings, "changed::list-voice-variants",
+	                  G_CALLBACK(espeak_update_list_voice_variants), NULL);
+	espeak_update_list_voice_variants(espeak_settings, NULL, NULL);
 
 	if (EspeakCapitalPitchRise == 1 || EspeakCapitalPitchRise == 2) {
 		EspeakCapitalPitchRise = 0;
@@ -323,6 +333,10 @@ int module_init(char **status_info)
 
 SPDVoice **module_list_voices(void)
 {
+	if (espeak_voice_list)
+		espeak_free_voice_list();
+
+	espeak_voice_list = espeak_list_synthesis_voices();
 	return espeak_voice_list;
 }
 
