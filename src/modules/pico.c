@@ -286,7 +286,7 @@ pico_update_debug(GSettings *settings,
                   gchar *key,
                   gpointer user_data)
 {
-	Debug = g_settings_get_boolean(pico_settings, "debug");
+	Debug = g_settings_get_uint(pico_settings, "debug");
 }
 
 /* Public functions */
@@ -297,9 +297,9 @@ int module_load(void)
 	pico_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
 
 	PicoLingwarePath = g_settings_get_string(pico_settings, "lingware-path");
-	Debug = g_settings_get_boolean(pico_settings, "debug");
 	g_signal_connect (pico_settings, "changed::debug",
 	                  G_CALLBACK(pico_update_debug), NULL);
+	pico_update_debug(pico_settings, NULL, NULL);
 
 	return 0;
 }
