@@ -192,6 +192,7 @@ static void *_espeak_stop_or_pause(void *);
 /* Module configuration variables */
 
 static GSettings *espeak_settings = NULL;
+static GSettings *speechd_settings = NULL;
 static gchar     *EspeakPunctuationList = NULL;
 static gchar     *EspeakSoundIconFolder = NULL;
 static guint      EspeakCapitalPitchRise = 0;
@@ -202,6 +203,15 @@ static guint      EspeakAudioChunkSize = 0;
 static guint      EspeakAudioQueueMaxSize = 0;
 static guint      EspeakSoundIconVolume = 0;
 static gboolean   EspeakListVoiceVariants = FALSE;
+
+static void
+espeak_update_volume(GSettings *settings,
+                     gchar *key,
+                     gpointer user_data)
+{
+	int volume = g_settings_get_int(settings, "default-volume");
+	espeak_set_volume(volume);
+}
 
 static void
 espeak_update_list_voice_variants(GSettings *settings,
@@ -220,6 +230,7 @@ int module_load(void)
 	REGISTER_DEBUG();
 
 	espeak_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
+	speechd_settings = g_settings_new("org.freebsoft.speechd.server");
 
 	EspeakAudioChunkSize = g_settings_get_uint(espeak_settings, "audio-chunk-size");
 	EspeakAudioQueueMaxSize = g_settings_get_uint(espeak_settings, "audio-queue-max-size");
@@ -234,6 +245,9 @@ int module_load(void)
 	g_signal_connect (espeak_settings, "changed::list-voice-variants",
 	                  G_CALLBACK(espeak_update_list_voice_variants), NULL);
 	espeak_update_list_voice_variants(espeak_settings, NULL, NULL);
+	g_signal_connect(speechd_settings, "changed::default-volume",
+	                 G_CALLBACK(espeak_update_volume), NULL);
+	espeak_update_volume(speechd_settings, NULL, NULL);
 
 	if (EspeakCapitalPitchRise == 1 || EspeakCapitalPitchRise == 2) {
 		EspeakCapitalPitchRise = 0;
@@ -366,7 +380,6 @@ int module_speak(gchar * data, size_t bytes, SPDMessageType msgtype)
 	UPDATE_STRING_PARAMETER(voice.name, espeak_set_synthesis_voice);
 
 	UPDATE_PARAMETER(rate, espeak_set_rate);
-	UPDATE_PARAMETER(volume, espeak_set_volume);
 	UPDATE_PARAMETER(pitch, espeak_set_pitch);
 	UPDATE_PARAMETER(pitch_range, espeak_set_pitch_range);
 	UPDATE_PARAMETER(punctuation_mode, espeak_set_punctuation_mode);
