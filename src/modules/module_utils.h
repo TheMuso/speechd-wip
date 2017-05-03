@@ -24,7 +24,6 @@
 #ifndef __MODULE_UTILS_H
 #define __MODULE_UTILS_H
 
-#include <dotconf.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,10 +42,12 @@
 #include <speechd_types.h>
 #include "spd_audio.h"
 
+/* Current log level */
 int log_level;
 
 AudioID *module_audio_id;
 
+/* Current and old message settings structures */
 SPDMsgSettings msg_settings;
 SPDMsgSettings msg_settings_old;
 
@@ -94,10 +95,10 @@ int module_num_dc_options;
 		tstr = g_strdup(ctime(&t)); \
 		tstr[strlen(tstr)-1] = 0; \
 		gettimeofday(&tv,NULL); \
-		fprintf(stderr," %s [%d]",tstr, (int) tv.tv_usec); \
-		fprintf(stderr, ": "); \
-		fprintf(stderr, arg); \
-		fprintf(stderr, "\n"); \
+		g_debug(" %s [%d]",tstr, (int) tv.tv_usec); \
+		g_debug(": "); \
+		g_debug(arg); \
+		g_debug("\n"); \
 		fflush(stderr); \
 		if ((Debug==2) || (Debug==3)){ \
 			fprintf(CustomDebugFile," %s [%d]",tstr, (int) tv.tv_usec);	\
@@ -110,7 +111,7 @@ int module_num_dc_options;
 	}
 
 #define FATAL(msg) { \
-		fprintf(stderr, "FATAL ERROR in output module [%s:%d]:\n   "msg, \
+		g_critical("FATAL ERROR in output module [%s:%d]:\n   "msg, \
 		        __FILE__, __LINE__); \
 		if (Debug > 1) \
 			fprintf(CustomDebugFile, "FATAL ERROR in output module [%s:%d]:\n   "msg,	\

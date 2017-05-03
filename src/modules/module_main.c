@@ -139,6 +139,7 @@ int main(int argc, char *argv[])
 	char *msg = NULL;
 	GSettings *global_settings;
 
+	g_log_set_writer_func(g_log_writer_journald, NULL, NULL);
 	/* Initialize ltdl's list of preloaded audio backends. */
 	LTDL_SET_PRELOADED_SYMBOLS();
 	module_num_dc_options = 0;

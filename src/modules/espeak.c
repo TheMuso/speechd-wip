@@ -32,6 +32,8 @@
 /* < Includes*/
 
 /* System includes. */
+#define G_LOG_USE_STRUCTURED
+#define G_LOG_DOMAIN "sdespeak"
 #include <string.h>
 #include <glib.h>
 #include <gio/gio.h>
@@ -211,13 +213,19 @@ espeak_update_list_voice_variants(GSettings *settings,
 	EspeakListVoiceVariants = g_settings_get_boolean(settings, "list-voice-variants");
 }
 
+static void
+espeak_update_debug(GSettings *settings,
+                    gchar *key,
+                    gpointer user_data)
+{
+	Debug = g_settings_get_uint(settings, "debug");
+}
+
 /* > */
 /* < Public functions */
 int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
-
-	REGISTER_DEBUG();
 
 	espeak_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
 
@@ -234,6 +242,9 @@ int module_load(void)
 	g_signal_connect (espeak_settings, "changed::list-voice-variants",
 	                  G_CALLBACK(espeak_update_list_voice_variants), NULL);
 	espeak_update_list_voice_variants(espeak_settings, NULL, NULL);
+	g_signal_connect (espeak_settings, "changed::debug",
+	                  G_CALLBACK(espeak_update_debug), NULL);
+	espeak_update_debug(espeak_settings, NULL, NULL);
 
 	if (EspeakCapitalPitchRise == 1 || EspeakCapitalPitchRise == 2) {
 		EspeakCapitalPitchRise = 0;
@@ -333,6 +344,7 @@ int module_init(char **status_info)
 
 SPDVoice **module_list_voices(void)
 {
+	DBG(DBG_MODNAME "module_list_voices called, getting new list");
 	if (espeak_voice_list)
 		espeak_free_voice_list();
 
