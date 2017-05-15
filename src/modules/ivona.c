@@ -43,9 +43,6 @@
 #define MODULE_NAME     "ivona"
 #define MODULE_VERSION  "0.2"
 
-#define DEBUG_MODULE 1
-DECLARE_DEBUG();
-
 /* Thread and process control */
 static int ivona_speaking = 0;
 
@@ -91,7 +88,7 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
-	REGISTER_DEBUG();
+	DECLARE_DEBUG
 
 	MOD_OPTION_1_STR_REG(IvonaDelimiters, ".;:,!?");
 	MOD_OPTION_1_INT_REG(IvonaMinCapLet, 0);

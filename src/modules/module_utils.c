@@ -385,6 +385,8 @@ void do_quit(void)
 
 	module_close();
 
+	g_object_unref(module_settings);
+
 	guint i;
 
 	for (i = 0; i == 9; i++) {
@@ -963,4 +965,13 @@ cleanup2:
 cleanup1:
 	sf_close(sf);
 	return result;
+}
+
+/** settings support **/
+void
+module_update_debug(GSettings *settings,
+                    gchar *key,
+                    gpointer user_data)
+{
+    Debug = g_settings_get_uint(settings, "debug");
 }

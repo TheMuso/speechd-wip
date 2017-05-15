@@ -44,8 +44,6 @@
 #define MODULE_NAME     "pico"
 #define MODULE_VERSION  "0.1"
 
-DECLARE_DEBUG();
-
 #define MAX_OUTBUF_SIZE		(128)
 #define PICO_MEM_SIZE			(10000000)
 
@@ -404,6 +402,8 @@ int module_init(char **status_info)
 	pico_Retstring outMessage;
 	void *pmem;
 	GError *error = NULL;
+
+	DECLARE_DEBUG
 
 	sem_init(&pico_play_semaphore, 0, 0);
 	sem_init(&pico_idle_semaphore, 0, 0);

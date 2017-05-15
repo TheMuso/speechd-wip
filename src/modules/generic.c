@@ -36,8 +36,6 @@
 #define MODULE_NAME     "generic"
 #define MODULE_VERSION  "0.2"
 
-DECLARE_DEBUG()
-
 /* Thread and process control */
 static int generic_speaking = 0;
 
@@ -107,9 +105,9 @@ int module_load(void)
 
 	INIT_SETTINGS_TABLES();
 
-	MOD_OPTION_1_STR_REG(GenericExecuteSynth, "");
+	DECLARE_DEBUG
 
-	REGISTER_DEBUG();
+	MOD_OPTION_1_STR_REG(GenericExecuteSynth, "");
 
 	MOD_OPTION_1_INT_REG(GenericMaxChunkLength, 300);
 	MOD_OPTION_1_STR_REG(GenericDelimiters, ".");

@@ -37,8 +37,6 @@
 #define MODULE_NAME     "festival"
 #define MODULE_VERSION  "0.5"
 
-DECLARE_DEBUG()
-
 /* Thread and process control */
 static pthread_t festival_speak_thread;
 static sem_t festival_semaphore;
@@ -206,7 +204,7 @@ int module_load(void)
 
 	INIT_SETTINGS_TABLES();
 
-	REGISTER_DEBUG();
+	DECLARE_DEBUG
 
 	MOD_OPTION_1_INT_REG(FestivalComunicationType, 0);
 

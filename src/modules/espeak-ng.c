@@ -57,8 +57,6 @@
 
 #define MODULE_VERSION  "0.1"
 
-#define DEBUG_MODULE 1
-DECLARE_DEBUG()
 #define DBG_WARN(e, msg)						\
 	if (Debug && !(e)) {						\
 		DBG(DBG_MODNAME " Warning:  " msg);			\
@@ -192,7 +190,6 @@ static void *_espeak_stop_or_pause(void *);
 
 /* Module configuration variables */
 
-static GSettings *espeak_settings = NULL;
 static gchar     *EspeakPunctuationList = NULL;
 static gchar     *EspeakSoundIconFolder = NULL;
 static guint      EspeakCapitalPitchRise = 0;
@@ -210,21 +207,17 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
-	REGISTER_DEBUG();
+	EspeakAudioChunkSize = g_settings_get_uint(module_settings, "audio-chunk-size");
+	EspeakAudioQueueMaxSize = g_settings_get_uint(module_settings, "audio-queue-max-size");
+	EspeakSoundIconFolder = g_settings_get_string(module_settings, "sound-icon-folder");
+	EspeakSoundIconVolume = g_settings_get_uint(module_settings, "sound-icon-volume");
 
-	espeak_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
-
-	EspeakAudioChunkSize = g_settings_get_uint(espeak_settings, "audio-chunk-size");
-	EspeakAudioQueueMaxSize = g_settings_get_uint(espeak_settings, "audio-queue-max-size");
-	EspeakSoundIconFolder = g_settings_get_string(espeak_settings, "sound-icon-folder");
-	EspeakSoundIconVolume = g_settings_get_uint(espeak_settings, "sound-icon-volume");
-
-	EspeakMinRate = g_settings_get_uint(espeak_settings, "min-rate");
-	EspeakNormalRate = g_settings_get_uint(espeak_settings, "normal-rate");
-	EspeakMaxRate = g_settings_get_uint(espeak_settings, "max-rate");
-	EspeakPunctuationList = g_settings_get_string(espeak_settings, "punctuation-list");
-	EspeakCapitalPitchRise = g_settings_get_uint(espeak_settings, "capital-pitch-rise");
-	EspeakListVoiceVariants = g_settings_get_boolean(espeak_settings, "list-voice-variants");
+	EspeakMinRate = g_settings_get_uint(module_settings, "min-rate");
+	EspeakNormalRate = g_settings_get_uint(module_settings, "normal-rate");
+	EspeakMaxRate = g_settings_get_uint(module_settings, "max-rate");
+	EspeakPunctuationList = g_settings_get_string(module_settings, "punctuation-list");
+	EspeakCapitalPitchRise = g_settings_get_uint(module_settings, "capital-pitch-rise");
+	EspeakListVoiceVariants = g_settings_get_boolean(module_settings, "list-voice-variants");
 
 	if (EspeakCapitalPitchRise == 1 || EspeakCapitalPitchRise == 2) {
 		EspeakCapitalPitchRise = 0;
@@ -240,6 +233,8 @@ int module_init(char **status_info)
 
 	DBG(DBG_MODNAME " Module init().");
 	INIT_INDEX_MARKING();
+
+	DECLARE_DEBUG
 
 	*status_info = NULL;
 
@@ -513,8 +508,6 @@ int module_close(void)
 
 	g_free(EspeakSoundIconFolder);
 	EspeakSoundIconFolder = NULL;
-
-	g_object_unref(espeak_settings);
 
 	return 0;
 }

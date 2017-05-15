@@ -118,6 +118,16 @@ lback function.
       <default>0</default>
     </key>
 
+    <key name="debug-file" type="s">
+      <_summary>Debug File</_summary>
+      <_description>
+        debug-file specifies the file where the debugging information
+        should be stored (note that the log is overwritten each time
+        the module starts)
+      </_description>
+      <default>"/tmp/debug-espeak"</default>
+    </key>
+
   </schema>
 
 </schemalist>

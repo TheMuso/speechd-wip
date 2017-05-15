@@ -82,9 +82,6 @@ typedef enum {
 #define MODULE_NAME     "ibmtts"
 #define MODULE_VERSION  "0.1"
 
-#define DEBUG_MODULE 1
-DECLARE_DEBUG();
-
 /* Define a hash table where each entry is a double-linked list
    loaded from the config file.  Each entry in the config file
    is 3 strings, where the 1st string is used to access a list
@@ -396,7 +393,7 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
-	REGISTER_DEBUG();
+	DECLARE_DEBUG
 
 	MOD_OPTION_1_INT_REG(IbmttsUseSSML, 1);
 	MOD_OPTION_1_INT_REG(IbmttsUseAbbreviation, 1);

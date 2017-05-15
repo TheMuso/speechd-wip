@@ -37,6 +37,7 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <dotconf.h>
+#include <gio/gio.h>
 
 #include <sys/ipc.h>
 
@@ -52,6 +53,7 @@ SPDMsgSettings msg_settings_old;
 
 int current_index_mark;
 
+static GSettings *module_settings = NULL;
 int Debug;
 FILE *CustomDebugFile;
 
@@ -354,15 +356,20 @@ configoption_t *add_config_option(configoption_t * options,
 
 /* --- DEBUGGING SUPPORT  ---*/
 
-#define DECLARE_DEBUG() \
-	DOTCONF_CB(Debug ## _cb) \
-	{ \
-		Debug = cmd->data.value; \
-		return NULL; \
-	}
+void
+module_update_debug(GSettings *settings,
+                    gchar *key,
+                    gpointer user_data);
 
-#define REGISTER_DEBUG() \
-	MOD_OPTION_1_INT_REG(Debug, 0); \
+#define REGISTER_DEBUG(settings) \
+	g_signal_connect (settings, "changed::debug", \
+					  G_CALLBACK(module_update_debug), NULL); \
+	module_update_debug(settings, NULL, NULL);
+
+#define DECLARE_DEBUG \
+	module_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME); \
+	REGISTER_DEBUG(module_settings);
+
 
 	/* --- INDEX MARKING --- */
 

@@ -39,9 +39,6 @@
 #define MODULE_NAME     "cicero"
 #define MODULE_VERSION  "0.3"
 
-// #define DEBUG_MODULE 1
-DECLARE_DEBUG()
-
 /* Thread and process control */
 static int cicero_speaking = 0;
 
@@ -133,7 +130,6 @@ static void mywrite(int fd, const void *buf, int len)
 int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
-	REGISTER_DEBUG();
 	MOD_OPTION_1_STR_REG(CiceroExecutable, "/usr/bin/cicero");
 	MOD_OPTION_1_STR_REG(CiceroExecutableLog,
 			     "/var/log/speech-dispatcher/cicero-executable.log");
@@ -146,6 +142,8 @@ int module_init(char **status_info)
 	int stderr_redirect;
 
 	DBG("Module init\n");
+
+	DECLARE_DEBUG
 
 	(void)signal(SIGPIPE, SIG_IGN);
 
