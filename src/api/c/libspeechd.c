@@ -338,9 +338,14 @@ spawn_server(SPDConnectionAddress * address, int is_localhost,
 	}
 
 	server_settings = g_settings_new("org.freebsoft.speechd.server");
-	if (server_settings != NULL && !g_settings_get_boolean(server_settings, "enable-auto-spawn")) {
-		*spawn_error = g_strdup("Auto-spawn not enabled in server settings");
-		g_object_unref(server_settings);
+	if (server_settings != NULL) {
+		if (!g_settings_get_boolean(server_settings, "enable-auto-spawn")) {
+			*spawn_error = g_strdup("Auto-spawn not enabled in server settings");
+			g_object_unref(server_settings);
+			return 1;
+		}
+	} else {
+		*spawn_error = g_strdup("Cannot check auto-spawn setting");
 		return 1;
 	}
 	g_object_unref(server_settings);
