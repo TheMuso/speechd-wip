@@ -41,6 +41,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <glib.h>
+#include <gio/gio.h>
 #include <errno.h>
 #include <assert.h>
 #include <netdb.h>
@@ -325,6 +326,7 @@ spawn_server(SPDConnectionAddress * address, int is_localhost,
 	gchar *stderr_output;
 	gboolean spawn_ok;
 	GError *gerror = NULL;
+	GSettings *server_settings = NULL;
 	int exit_status;
 	int i;
 
@@ -334,6 +336,14 @@ spawn_server(SPDConnectionAddress * address, int is_localhost,
 		    ("Spawn failed, the given network address doesn't seem to be on localhost");
 		return 1;
 	}
+
+	server_settings = g_settings_new("org.freebsoft.speechd.server");
+	if (server_settings != NULL && !g_settings_get_boolean(server_settings, "enable-auto-spawn")) {
+		*spawn_error = g_strdup("Auto-spawn not enabled in server settings");
+		g_object_unref(server_settings);
+		return 1;
+	}
+	g_object_unref(server_settings);
 
 	speechd_cmd[0] = g_strdup(SPD_SPAWN_CMD);
 	speechd_cmd[1] = g_strdup("--spawn");

@@ -1366,18 +1366,6 @@ int main(int argc, char *argv[])
 	if (create_pid_file() != 0)
 		exit(1);
 
-	/* Handle --spawn request */
-	if (SpeechdOptions.spawn) {
-		/* Check whether spawning is enabled */
-		if (!g_settings_get_boolean(spd_settings, "enable-auto-spawn")) {
-			MSG(-1,
-			    "Autospawn requested but disabled in configuration");
-			g_object_unref(spd_settings);
-			exit(1);
-		}
-		MSG(2, "Starting Speech Dispatcher due to auto-spawn");
-	}
-
 	/* Initialize logging mutex to workaround ctime threading bug */
 
 	/* Must be done no later than here */
