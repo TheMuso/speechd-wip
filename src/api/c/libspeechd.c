@@ -324,11 +324,14 @@ spawn_server(SPDConnectionAddress * address, int is_localhost,
 {
 	gchar **speechd_cmd = malloc(16 * sizeof(char *));
 	gchar *stderr_output;
+	gchar *pid_file = NULL;
 	gboolean spawn_ok;
+	gboolean pidfile_exists = FALSE;
 	GError *gerror = NULL;
 	GSettings *server_settings = NULL;
 	int exit_status;
 	int i;
+	gint64 pidfile_check_timeout;
 
 	if ((address->method == SPD_METHOD_INET_SOCKET) && (!is_localhost)) {
 		*spawn_error =
@@ -387,8 +390,27 @@ spawn_server(SPDConnectionAddress * address, int is_localhost,
 			     "stating this as a reason: %s", stderr_output);
 			return 1;
 		} else {
-			*spawn_error = NULL;
-			return 0;
+			pid_file = g_strdup_printf("%s/speech-dispatcher/pid/speech-dispatcher.pid",
+						   g_get_user_runtime_dir());
+			pidfile_check_timeout = (g_get_monotonic_time() + 2000);
+
+			while (g_get_monotonic_time() <= pidfile_check_timeout) {
+				if (g_file_test(pid_file, G_FILE_TEST_EXISTS)) {
+					pidfile_exists = TRUE;
+					break;
+				}
+				g_usleep(100);
+			}
+
+			g_free(pid_file);
+
+			if (!pidfile_exists) {
+				*spawn_error = g_strdup("Speech Dispatcher taking too long to start");
+				return 1;
+			} else {
+				*spawn_error = NULL;
+				return 0;
+			}
 		}
 	}
 	assert(0);
