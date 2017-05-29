@@ -892,9 +892,6 @@ void load_default_global_set_options()
 		SpeechdOptions.port = g_settings_get_uint (spd_settings, "port");
 	if (!SpeechdOptions.localhost_access_only_set)
 		SpeechdOptions.localhost_access_only = g_settings_get_boolean (spd_settings, "localhost-access-only");
-
-	logfile = stderr;
-	custom_logfile = NULL;
 }
 
 static gboolean speechd_load_configuration(gpointer user_data)
