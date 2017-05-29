@@ -264,7 +264,7 @@ void speechd_init(void);
 int create_pid_file(void);
 void destroy_pid_file(void);
 
-void logging_init(void);
+static void logging_init(void);
 
 void check_locked(pthread_mutex_t * lock);
 

@@ -638,8 +638,6 @@ void speechd_init()
 	    SpeechdOptions.conf_file);
 	speechd_load_configuration(NULL);
 
-	logging_init();
-
 	/* Check for output modules */
 	if (g_list_length(output_modules) == 0) {
 		DIE("No speech output modules were loaded - aborting...");
@@ -873,6 +871,10 @@ void load_default_global_set_options()
 		spd_update_timeout (spd_settings, NULL, NULL);
 	}
 
+	/* Now that logging settings are set, it should be set up before
+	 * modules are loaded. */
+	logging_init();
+
 	/* Get the list of enabled modules and add them to the list of modules to load */
 	modules = g_settings_get_strv (spd_settings, "enabled-modules");
 	for (iter = modules; *iter; iter++) {
@@ -1006,7 +1008,7 @@ void destroy_pid_file(void)
 	unlink(SpeechdOptions.pid_file);
 }
 
-void logging_init(void)
+static void logging_init(void)
 {
 	char *file_name =
 	    g_strdup_printf("%s/speech-dispatcher.log", SpeechdOptions.log_dir);
