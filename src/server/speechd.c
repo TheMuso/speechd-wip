@@ -620,19 +620,6 @@ void speechd_init()
 	if (ret != 0)
 		DIE("Mutex initialization failed");
 
-	if (SpeechdOptions.log_dir == NULL) {
-		SpeechdOptions.log_dir =
-		    g_strdup_printf("%s/log/",
-				    SpeechdOptions.runtime_speechd_dir);
-		mkdir(SpeechdOptions.log_dir, S_IRWXU);
-		if (!SpeechdOptions.debug_destination) {
-			SpeechdOptions.debug_destination =
-			    g_strdup_printf("%s/log/debug",
-					    SpeechdOptions.runtime_speechd_dir);
-			mkdir(SpeechdOptions.debug_destination, S_IRWXU);
-		}
-	}
-
 	/* Load configuration from the config file */
 	MSG(4, "Reading Speech Dispatcher configuration from %s",
 	    SpeechdOptions.conf_file);
@@ -869,6 +856,37 @@ void load_default_global_set_options()
 			g_signal_connect (spd_settings, "changed::timeout",
 							  G_CALLBACK(spd_update_timeout), NULL);
 		spd_update_timeout (spd_settings, NULL, NULL);
+	}
+
+	if (!SpeechdOptions.log_dir_set)
+		SpeechdOptions.log_dir = g_settings_get_string(spd_settings, "log-dir");
+
+	if (g_strcmp0(SpeechdOptions.log_dir, "default") == 0) {
+		g_free(SpeechdOptions.log_dir);
+		SpeechdOptions.log_dir =
+		    g_strdup_printf("%s/log/",
+				    SpeechdOptions.runtime_speechd_dir);
+	}
+
+	/* Check the absolute path and create the log directory if stdout and
+	 * stderr are not specified. */
+	if (g_strcmp0(SpeechdOptions.log_dir, "stdout") != 0 &&
+	    g_strcmp0(SpeechdOptions.log_dir, "stderr") != 0) {
+		if (!g_path_is_absolute(SpeechdOptions.log_dir)) {
+			MSG(1, "Log directory should be an absolute path. Setting to default directory");
+			g_free(SpeechdOptions.log_dir);
+			SpeechdOptions.log_dir =
+			    g_strdup_printf("%s/log/",
+					    SpeechdOptions.runtime_speechd_dir);
+		}
+		g_mkdir_with_parents(SpeechdOptions.log_dir, S_IRWXU);
+
+		if (!SpeechdOptions.debug_destination) {
+			SpeechdOptions.debug_destination =
+			    g_strdup_printf("%s/log/debug",
+					    SpeechdOptions.runtime_speechd_dir);
+			g_mkdir(SpeechdOptions.debug_destination, S_IRWXU);
+		}
 	}
 
 	/* Now that logging settings are set, it should be set up before
