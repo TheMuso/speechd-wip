@@ -190,6 +190,7 @@ static void *_espeak_stop_or_pause(void *);
 
 /* Module configuration variables */
 
+static GSettings *speechd_settings = NULL;
 static gchar     *EspeakPunctuationList = NULL;
 static gchar     *EspeakSoundIconFolder = NULL;
 static guint      EspeakCapitalPitchRise = 0;
@@ -201,6 +202,23 @@ static guint      EspeakAudioQueueMaxSize = 0;
 static guint      EspeakSoundIconVolume = 0;
 static gboolean   EspeakListVoiceVariants = FALSE;
 
+static void
+espeak_update_volume(GSettings *settings,
+		     gchar *key,
+		     gpointer user_data)
+{
+	int volume = g_settings_get_int(settings, "default-volume");
+	espeak_set_volume(volume);
+}
+
+static void
+espeak_update_list_voice_variants(GSettings *settings,
+		  gchar *key,
+		  gpointer user_data)
+{
+	EspeakListVoiceVariants = g_settings_get_boolean(settings, "list-voice-variants");
+}
+
 /* > */
 /* < Public functions */
 int module_load(void)
@@ -208,6 +226,8 @@ int module_load(void)
 	INIT_SETTINGS_TABLES();
 
 	DECLARE_DEBUG
+
+	speechd_settings = g_settings_new("org.freebsoft.speechd.server");
 
 	EspeakAudioChunkSize = g_settings_get_uint(module_settings, "audio-chunk-size");
 	EspeakAudioQueueMaxSize = g_settings_get_uint(module_settings, "audio-queue-max-size");
@@ -219,7 +239,12 @@ int module_load(void)
 	EspeakMaxRate = g_settings_get_uint(module_settings, "max-rate");
 	EspeakPunctuationList = g_settings_get_string(module_settings, "punctuation-list");
 	EspeakCapitalPitchRise = g_settings_get_uint(module_settings, "capital-pitch-rise");
-	EspeakListVoiceVariants = g_settings_get_boolean(module_settings, "list-voice-variants");
+	g_signal_connect(module_settings, "changed::list-voice-variants",
+	                 G_CALLBACK(espeak_update_list_voice_variants), NULL);
+	espeak_update_list_voice_variants(module_settings, NULL, NULL);
+	g_signal_connect(speechd_settings, "changed::default-volume",
+	                 G_CALLBACK(espeak_update_volume), NULL);
+	espeak_update_volume(speechd_settings, NULL, NULL);
 
 	if (EspeakCapitalPitchRise == 1 || EspeakCapitalPitchRise == 2) {
 		EspeakCapitalPitchRise = 0;
