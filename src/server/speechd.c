@@ -785,7 +785,38 @@ spd_update_capital_letter_recognition(GSettings *settings,
 	}
 }
 
-void load_default_global_set_options()
+static void logging_init(void)
+{
+	char *file_name = NULL;
+
+	if (g_strcmp0(SpeechdOptions.log_dir, "stdout") == 0) {
+		logfile = stdout;
+	} else if (g_strcmp0(SpeechdOptions.log_dir, "stderr") == 0) {
+		logfile = stderr;
+	} else {
+		file_name =
+		    g_strdup_printf("%s/speech-dispatcher.log", SpeechdOptions.log_dir);
+		assert(file_name != NULL);
+		logfile = fopen(file_name, "a");
+		if (logfile == NULL) {
+			fprintf(stderr,
+				"Error: can't open logging file %s! Using stdout.\n",
+				file_name);
+			logfile = stdout;
+		} else {
+			MSG(3, "Speech Dispatcher Logging to file %s",
+			    file_name);
+		}
+		g_free(file_name);
+	}
+
+	if (!debug_logfile)
+		debug_logfile = stdout;
+
+	return;
+}
+
+static void load_default_global_set_options(void)
 {
 	gchar **modules;
 	gchar **iter;
@@ -1024,37 +1055,6 @@ int create_pid_file()
 void destroy_pid_file(void)
 {
 	unlink(SpeechdOptions.pid_file);
-}
-
-static void logging_init(void)
-{
-	char *file_name = NULL;
-
-	if (g_strcmp0(SpeechdOptions.log_dir, "stdout") == 0) {
-		logfile = stdout;
-	} else if (g_strcmp0(SpeechdOptions.log_dir, "stderr") == 0) {
-		logfile = stderr;
-	} else {
-		file_name =
-		    g_strdup_printf("%s/speech-dispatcher.log", SpeechdOptions.log_dir);
-		assert(file_name != NULL);
-		logfile = fopen(file_name, "a");
-		if (logfile == NULL) {
-			fprintf(stderr,
-				"Error: can't open logging file %s! Using stdout.\n",
-				file_name);
-			logfile = stdout;
-		} else {
-			MSG(3, "Speech Dispatcher Logging to file %s",
-			    file_name);
-		}
-		g_free(file_name);
-	}
-
-	if (!debug_logfile)
-		debug_logfile = stdout;
-
-	return;
 }
 
 /* --- Sockets --- */
