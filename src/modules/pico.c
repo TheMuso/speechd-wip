@@ -292,6 +292,8 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
+	DECLARE_DEBUG
+
 	pico_settings = g_settings_new("org.freebsoft.speechd.modules."MODULE_NAME);
 
 	PicoLingwarePath = g_settings_get_string(pico_settings, "lingware-path");
@@ -402,8 +404,6 @@ int module_init(char **status_info)
 	pico_Retstring outMessage;
 	void *pmem;
 	GError *error = NULL;
-
-	DECLARE_DEBUG
 
 	sem_init(&pico_play_semaphore, 0, 0);
 	sem_init(&pico_idle_semaphore, 0, 0);

@@ -207,6 +207,8 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
+	DECLARE_DEBUG
+
 	EspeakAudioChunkSize = g_settings_get_uint(module_settings, "audio-chunk-size");
 	EspeakAudioQueueMaxSize = g_settings_get_uint(module_settings, "audio-queue-max-size");
 	EspeakSoundIconFolder = g_settings_get_string(module_settings, "sound-icon-folder");
@@ -233,8 +235,6 @@ int module_init(char **status_info)
 
 	DBG(DBG_MODNAME " Module init().");
 	INIT_INDEX_MARKING();
-
-	DECLARE_DEBUG
 
 	*status_info = NULL;
 

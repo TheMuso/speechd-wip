@@ -224,6 +224,8 @@ int module_load(void)
 {
 	INIT_SETTINGS_TABLES();
 
+	DECLARE_DEBUG
+
 	speechd_settings = g_settings_new("org.freebsoft.speechd.server");
 
 	EspeakAudioChunkSize = g_settings_get_uint(module_settings, "audio-chunk-size");
