@@ -1028,14 +1028,16 @@ void destroy_pid_file(void)
 
 static void logging_init(void)
 {
-	char *file_name =
-	    g_strdup_printf("%s/speech-dispatcher.log", SpeechdOptions.log_dir);
-	assert(file_name != NULL);
-	if (!strncmp(file_name, "stdout", 6)) {
+	char *file_name = NULL;
+
+	if (g_strcmp0(SpeechdOptions.log_dir, "stdout") == 0) {
 		logfile = stdout;
-	} else if (!strncmp(file_name, "stderr", 6)) {
+	} else if (g_strcmp0(SpeechdOptions.log_dir, "stderr") == 0) {
 		logfile = stderr;
 	} else {
+		file_name =
+		    g_strdup_printf("%s/speech-dispatcher.log", SpeechdOptions.log_dir);
+		assert(file_name != NULL);
 		logfile = fopen(file_name, "a");
 		if (logfile == NULL) {
 			fprintf(stderr,
@@ -1046,12 +1048,12 @@ static void logging_init(void)
 			MSG(3, "Speech Dispatcher Logging to file %s",
 			    file_name);
 		}
+		g_free(file_name);
 	}
 
 	if (!debug_logfile)
 		debug_logfile = stdout;
 
-	g_free(file_name);
 	return;
 }
 
