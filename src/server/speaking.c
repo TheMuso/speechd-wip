@@ -33,6 +33,7 @@
 #include "speechd.h"
 #include "server.h"
 #include "index_marking.h"
+#include "symbols.h"
 #include "module.h"
 #include "set.h"
 #include "alloc.h"
@@ -220,6 +221,8 @@ void *speak(void *data)
 
 		/* Insert index marks into textual messages */
 		if (message->settings.type == SPD_MSGTYPE_TEXT) {
+			if (message->settings.symbols_preprocessing)
+				insert_symbols(message);
 			insert_index_marks(message,
 					   message->settings.ssml_mode);
 		}
