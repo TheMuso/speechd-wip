@@ -214,6 +214,17 @@
       <default>"en"</default>
     </key>
 
+    <key name="default-symbols-pre-processing" type="b">
+      <_summary>Whether the server should pre-process punctuation symbols</_summary>
+      <_description>
+        Whether to use server-side symbols pre-processing by default. This
+        controls whether the server should pre-process the messages to insert
+        the appropriate words or if the output module is responsible for
+        speaking symbols and punctuation.
+      </_description>
+      <default>true</default>
+    </key>
+
     <!-- Message Dispatching Control -->
 
     <key name="default-client-name" type="s">

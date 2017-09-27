@@ -752,6 +752,17 @@ spd_update_punctuation_mode(GSettings *settings,
 }
 
 static void
+spd_update_symbols_preprocessing(GSettings *settings,
+							gchar *key,
+							gpointer user_data)
+{
+	gboolean symbols_preprocessing = g_settings_get_boolean (settings, "default-symbols-pre-processing");
+	if (symbols_preprocessing != GlobalFDSet.symbols_preprocessing) {
+		GlobalFDSet.symbols_preprocessing = symbols_preprocessing;
+	}
+}
+
+static void
 spd_update_timeout(GSettings *settings,
 				   gchar *key,
 				   gpointer user_data)
@@ -841,6 +852,9 @@ static void load_default_global_set_options(void)
 	g_signal_connect (spd_settings, "changed::default-volume",
 					  G_CALLBACK(spd_update_default_volume), NULL);
 	spd_update_default_volume(spd_settings, NULL, NULL);
+	g_signal_connect (spd_settings, "changed::default-symbols-pre-processing",
+					  G_CALLBACK(spd_update_symbols_preprocessing), NULL);
+	spd_update_symbols_preprocessing(spd_settings, NULL, NULL);
 	GlobalFDSet.client_name = NULL;
 	g_signal_connect (spd_settings, "changed::default-client-name",
 					  G_CALLBACK(spd_update_default_client_name), NULL);
